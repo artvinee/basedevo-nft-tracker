@@ -18,64 +18,72 @@ DELAY_BETWEEN_OPENSEA_REQUEST = 1
 
 
 async def first_pages(session):
-    next = None
-    cnt = 1
-    while True:
-        if cnt == PAGES_AMOUNT:
-            next = None
-            cnt = 1
-        if next is not None:
-            cnt += 1
-            resp = await session.get(
-                f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(LIST_ON_PAGE)}&next={urllib.parse.quote(next)}')
-            print(F'CURRENT PAGE: {cnt}')
-        else:
-            resp = await session.get(
-                f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(LIST_ON_PAGE)}')
-            print(f'CURRENT PAGE: {cnt}')
-        r = await resp.json()
-        next = r['next']
-        for listing in r['listings']:
-            offer = listing['protocol_data']['parameters']['offer']
-            for item in offer:
-                identifier = item.get('identifierOrCriteria')
-                json = {
-                    'tokenId': str(identifier)
-                }
-                resp = await session.post('https://basedevo.fun/api/checkToken', json=json)
-                r = await resp.json()
-                result = r['body']['tokenUsed']
-                if result is False:
-                    print(
-                        f"{identifier} can be used. Buy link: https://opensea.io/assets/ethereum/0xd4307e0acd12cf46fd6cf93bc264f5d5d1598792/{identifier}")
-                else:
-                    print(f'{identifier} CANNOT be used')
-                await asyncio.sleep(DELAY_BETWEEN_BASEDEVO_REQUEST)
-        await asyncio.sleep(DELAY_BETWEEN_OPENSEA_REQUEST)
+    try:
+        next = None
+        cnt = 1
+        while True:
+            if cnt == PAGES_AMOUNT:
+                next = None
+                cnt = 1
+            if next is not None:
+                cnt += 1
+                resp = await session.get(
+                    f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(LIST_ON_PAGE)}&next={urllib.parse.quote(next)}')
+                print(F'CURRENT PAGE: {cnt}')
+            else:
+                resp = await session.get(
+                    f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(LIST_ON_PAGE)}')
+                print(f'CURRENT PAGE: {cnt}')
+            r = await resp.json()
+            next = r['next']
+            for listing in r['listings']:
+                offer = listing['protocol_data']['parameters']['offer']
+                for item in offer:
+                    identifier = item.get('identifierOrCriteria')
+                    json = {
+                        'tokenId': str(identifier)
+                    }
+                    resp = await session.post('https://basedevo.fun/api/checkToken', json=json)
+                    r = await resp.json()
+                    result = r['body']['tokenUsed']
+                    if result is False:
+                        print(
+                            f"{identifier} can be used. Buy link: https://opensea.io/assets/ethereum/0xd4307e0acd12cf46fd6cf93bc264f5d5d1598792/{identifier}")
+                    else:
+                        print(f'{identifier} CANNOT be used')
+                    await asyncio.sleep(DELAY_BETWEEN_BASEDEVO_REQUEST)
+            await asyncio.sleep(DELAY_BETWEEN_OPENSEA_REQUEST)
+    except Exception as e:
+        print(e)
+        await asyncio.sleep(5)
 
 
 async def new_listings(session):
-    while True:
-        resp = await session.get(
-            f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(NEW_LIST_AMOUNT)}')
-        r = await resp.json()
-        for listing in r['listings']:
-            offer = listing['protocol_data']['parameters']['offer']
-            for item in offer:
-                identifier = item.get('identifierOrCriteria')
-                json = {
-                    'tokenId': str(identifier)
-                }
-                resp = await session.post('https://basedevo.fun/api/checkToken', json=json)
-                r = await resp.json()
-                result = r['body']['tokenUsed']
-                if result is False:
-                    print(
-                        f"{identifier} can be used. Buy link: https://opensea.io/assets/ethereum/0xd4307e0acd12cf46fd6cf93bc264f5d5d1598792/{identifier}")
-                else:
-                    print(f'{identifier} CANNOT be used')
-                await asyncio.sleep(DELAY_BETWEEN_BASEDEVO_REQUEST)
-        await asyncio.sleep(DELAY_BETWEEN_OPENSEA_REQUEST)
+    try:
+        while True:
+            resp = await session.get(
+                f'https://api.opensea.io/api/v2/listings/collection/base-introduced/best?limit={str(NEW_LIST_AMOUNT)}')
+            r = await resp.json()
+            for listing in r['listings']:
+                offer = listing['protocol_data']['parameters']['offer']
+                for item in offer:
+                    identifier = item.get('identifierOrCriteria')
+                    json = {
+                        'tokenId': str(identifier)
+                    }
+                    resp = await session.post('https://basedevo.fun/api/checkToken', json=json)
+                    r = await resp.json()
+                    result = r['body']['tokenUsed']
+                    if result is False:
+                        print(
+                            f"{identifier} can be used. Buy link: https://opensea.io/assets/ethereum/0xd4307e0acd12cf46fd6cf93bc264f5d5d1598792/{identifier}")
+                    else:
+                        print(f'{identifier} CANNOT be used')
+                    await asyncio.sleep(DELAY_BETWEEN_BASEDEVO_REQUEST)
+            await asyncio.sleep(DELAY_BETWEEN_OPENSEA_REQUEST)
+    except Exception as e:
+        print(e)
+        await asyncio.sleep(5)
 
 
 async def main():
@@ -94,9 +102,9 @@ async def main():
     action = int(input("Select action:\n1. Start new listings check\n2. Start first pages check\n\n> "))
 
     if action == 1:
-        await new_listings(session)
+            await new_listings(session)
     if action == 2:
-        await first_pages(session)
+            await first_pages(session)
 
 
 if __name__ == '__main__':
